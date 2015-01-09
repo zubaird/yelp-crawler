@@ -27,32 +27,47 @@ require_relative '../lib/yelp_scrape.rb'
 
 describe Company do
   describe "#read_body" do
-    it "reads an html page body" do
+    it "reads an html page" do
       file = "spec/test_data.html"
-      new_scrape = Company.new(file)
+      company = Company.new(file)
 
-      reading = new_scrape.read_body.text.strip
+      reading = company.read_body.text.strip
 
       expect(reading).to eq("test data")
+    end
+
+    it "reads an html page body when not a local file" do
+      webpage = "www.google.com"
+      company = Company.new(webpage)
+
+      reading = company.read_body.text.strip
+
+      expect(reading).to include("google")
     end
   end
 
   describe "#find_tag" do
     it "it can find a nested tag" do
       file = "spec/test_data.html"
-      new_scrape = Company.new(file)
+      company = Company.new(file)
 
       file = "spec/test_data.html"
 
-      reading = new_scrape.find_tag("p").text.strip
+      reading = company.find_tag("p").text.strip
 
       expect(reading).to eq("test data")
     end
   end
 
-  xdescribe "#reviews" do
-    it "shows all the reviews" do
+  describe "#get_reviews" do
+    it "gets all the reviews from a Company" do
+      webpage = "lib/page.html"
+      company = Company.new(webpage)
 
+      reviews = company.reviews
+
+      expect(reviews.first.class).to eq(Review)
+      expect(reviews.first.date).to eq("2014-12-27")
     end
   end
 
@@ -66,30 +81,41 @@ end
 describe Review do
 
   before do
-    @file = "spec/test_data.html"
-    @new_scrape = Company.new(file)
+    @file = "lib/page.html"
+    @new_company = Company.new(@file)
+    @review = @new_company.reviews.first
   end
 
   describe "#date" do
     it "shows the date" do
-      review = Review.new(review)
+      date = "2014-12-27"
 
-      date = "12/27/2014"
-
-      expect(first_review.date).to eq(date)
+      expect(@review.date).to eq(date)
     end
   end
 
   describe "#rating" do
+    it "shows the rating" do
+      rate = "5.0"
 
+      expect(@review.rating).to eq(rate)
+    end
   end
 
   describe "#user_name" do
+    it "shows the user name" do
+      username = "Stephanie F."
 
+      expect(@review.user_name).to eq(username)
+    end
   end
 
   describe "#content" do
+    it "shows the contents" do
+      content = "Beer/wine selection: outstanding"
 
+      expect(@review.contents).to include(content)
+    end
 
   end
 
