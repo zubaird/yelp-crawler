@@ -1,23 +1,46 @@
 require 'nokogiri'
 require 'rest-client'
 
+
+class Crawler
+
+  def initialize(initial_page)
+    @initial_company = Company.new(initial_page)
+    @companies = []
+  end
+
+  def companies
+    links = @initial_company.also_viewed
+    links.each do |link|
+      @companies << Company.new(link)
+    end
+    @companies
+  end
+
+  def links
+    companies.each do |company|
+      p company.also_viewed
+    end
+  end
+end
+
 class Company
 
   def initialize(page)
     @page = page
     @reviews = []
+    @similars = []
   end
-
 
   def read_body
     begin
-      @thing = File.open(@page)
+      @nokogiri_argument = File.open(@page)
     rescue SystemCallError
       sleep 1
       @page = RestClient.get @page, :user_agent => 'Chrome'
-      @thing = @page.to_str
+      @nokogiri_argument = @page.to_str
     end
-    html_doc = Nokogiri::HTML(@thing)
+    html_doc = Nokogiri::HTML(@nokogiri_argument)
     html_doc.css("body")
   end
 
@@ -32,6 +55,19 @@ class Company
     end
     @reviews
   end
+
+  def health_score
+    find_tag("div.score-block").text.strip
+  end
+
+  def also_viewed
+    nodes = find_tag(".related-businesses li")
+    nodes.each do |node|
+      @similars << "www.yelp.com#{node.css("a.biz-name").attr('href').value}"
+    end
+    @similars.uniq
+  end
+
 end
 
 class Review

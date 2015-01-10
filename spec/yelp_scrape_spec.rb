@@ -25,6 +25,37 @@
 
 require_relative '../lib/yelp_scrape.rb'
 
+
+describe Crawler do
+
+  before do
+    @file = "lib/page.html"
+    @crawl = Crawler.new(@file)
+  end
+
+  it "returns the company" do
+    expect(@crawl.companies.first.class).to eq (Company)
+  end
+
+  it "returns the company and its links" do
+    p @crawl.companies.first.links
+  end
+
+  it "can make a new company based on current company links" do
+
+  end
+
+  it "checks the healthscore for each company's links" do
+
+  end
+
+  it "can keep searching until it finds perfect healthscore" do
+
+  end
+
+end
+
+
 describe Company do
   describe "#read_body" do
     it "reads an html page" do
@@ -68,6 +99,25 @@ describe Company do
 
       expect(reviews.first.class).to eq(Review)
       expect(reviews.first.date).to eq("2014-12-27")
+    end
+  end
+
+  describe "#health_score" do
+    it "gets the healthscore from a Company" do
+      webpage = "lib/page.html"
+      company = Company.new(webpage)
+
+      expect(company.health_score).to eq("98")
+    end
+  end
+
+  describe "#also_viewed" do
+    it "gets the three viewed companies and puts it in an array" do
+      webpage = "lib/page.html"
+      company = Company.new(webpage)
+
+      expect(company.also_viewed.length).to eq(3)
+
     end
   end
 
@@ -116,7 +166,6 @@ describe Review do
 
       expect(@review.contents).to include(content)
     end
-
   end
 
   describe "#html" do
