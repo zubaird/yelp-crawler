@@ -33,24 +33,29 @@ describe Crawler do
     @crawl = Crawler.new(@file)
   end
 
-  it "returns the company" do
-    expect(@crawl.companies.first.class).to eq (Company)
+  describe "#initial_company_nodes" do
+    it "returns the company" do
+      expect(@crawl.root_company_nodes.first.class).to eq (Company)
+    end
   end
 
-  it "returns the company and its links" do
-    p @crawl.companies.first.links
+  it "returns the links for each company in also_viewed" do
+    expect(@crawl.root_company_nodes_links.class).to eq(Array)
   end
 
-  it "can make a new company based on current company links" do
-
+  it "can create new node objects from also_viewed companiea" do
+    expect(@crawl.root_company_nodes.class).to eq(Array)
   end
 
   it "checks the healthscore for each company's links" do
+    values = @crawl.root_company_nodes_health_scores
 
+    expect(values.class).to eq(Array)
   end
 
   it "can keep searching until it finds perfect healthscore" do
-
+    search = @crawl.find_health_score("97")
+    expect(search).to eq("97")
   end
 
 end
@@ -108,6 +113,15 @@ describe Company do
       company = Company.new(webpage)
 
       expect(company.health_score).to eq("98")
+    end
+  end
+
+  describe "#name" do
+    it "gets the name" do
+      webpage = "lib/page.html"
+      company = Company.new(webpage)
+
+      expect(company.name).to eq("Fat Angel")
     end
   end
 

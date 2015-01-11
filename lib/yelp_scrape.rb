@@ -4,40 +4,73 @@ require 'rest-client'
 
 class Crawler
 
-  def initialize(initial_page)
-    @initial_company = Company.new(initial_page)
-    @companies = []
+  def initialize(root_page)
+    @root_company = Company.new(root_page)
+    @root_companies = []
   end
 
-  def companies
-    links = @initial_company.also_viewed
+  def root_company_nodes
+    links = @root_company.also_viewed
     links.each do |link|
-      @companies << Company.new(link)
+      @root_companies << Company.new(link)
     end
-    @companies
+    @root_companies
   end
 
-  def links
-    companies.each do |company|
-      p company.also_viewed
+  def current_company_nodes(company)
+    company_nodes = []
+    links = company.also_viewed
+    links.each do |link|
+      company_nodes << Company.new(link)
     end
+    company_nodes
+  end
+
+  def root_company_nodes_links
+    root_company_nodes.each do |company|
+      company.also_viewed
+    end
+  end
+
+  def root_company_nodes_health_scores
+    @health_scores = []
+    root_company_nodes.each do |company|
+      @health_scores << company.health_score
+    end
+    @health_scores
+  end
+
+  def find_health_score(score)
+    @queue = [@root_company]
+
+    while !@queue.empty?
+      current_company = @queue.shift
+      puts "Current company is #{current_company.name}
+          with #{current_company.health_score} "
+      if current_company.health_score == score
+        return current_company
+      else
+        @queue.concat current_company_nodes(current_company)
+      end
+    end
+    return nil
   end
 end
 
 class Company
 
   def initialize(page)
-    @page = page
+    @url = page
     @reviews = []
     @similars = []
   end
 
   def read_body
     begin
-      @nokogiri_argument = File.open(@page)
+      @nokogiri_argument = File.open(@url)
     rescue SystemCallError
       sleep 1
-      @page = RestClient.get @page, :user_agent => 'Chrome'
+      @page = RestClient.get @url, :user_agent => 'Chrome'
       @nokogiri_argument = @page.to_str
     end
     html_doc = Nokogiri::HTML(@nokogiri_argument)
@@ -46,6 +79,10 @@ class Company
 
   def find_tag(tag)
     read_body.css("#{tag}")
+  end
+
+  def name
+    find_tag("h1.biz-page-title").text.strip
   end
 
   def reviews

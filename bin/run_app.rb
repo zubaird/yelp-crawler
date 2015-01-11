@@ -1,8 +1,7 @@
 require_relative "../lib/yelp_scrape.rb"
 
 
-file = "http://www.yelp.com/biz/fat-angel-san-francisco"
+file = "lib/page.html"
+crawl = Crawler.new(file)
 
-new_company = Company.new(file)
-
-p review = new_company.reviews.first
+p crawl.root_company_nodes
