@@ -54,8 +54,13 @@ describe Crawler do
   end
 
   it "can keep searching until it finds perfect healthscore" do
-    search = @crawl.find_health_score("97")
-    expect(search).to eq("97")
+    search = @crawl.find_health_score("100")
+    expect(search).to eq("100")
+  end
+
+  it "can keep searching until it finds a healthscore" do
+    search = @crawl.find_health_score("84")
+    expect(search).to eq("84")
   end
 
 end

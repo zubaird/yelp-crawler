@@ -49,8 +49,9 @@ class Crawler
           with #{current_company.health_score} "
       if current_company.health_score == score
         return current_company
+        puts "First company with #{score} is #{current_company.name}"
       else
-        @queue.concat current_company_nodes(current_company) unless @queue.include? current_company
+        @queue.concat current_company_nodes(current_company)
       end
     end
     return nil
